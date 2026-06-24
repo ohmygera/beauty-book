@@ -6,29 +6,59 @@ import { cn } from "@/lib/utils";
 
 export default function Login() {
   const navigate = useNavigate();
+  const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
+    setSuccessMessage(null);
     setIsLoading(true);
 
-    const { error: authError } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    });
+    if (mode === "login") {
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
 
-    if (authError) {
-      setError("Неверный email или пароль. Попробуйте снова.");
+      if (authError) {
+        setError("Неверный email или пароль. Попробуйте снова.");
+        setIsLoading(false);
+        return;
+      }
+
+      navigate("/dashboard");
+    } else {
+      const { error: authError } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+      });
+
+      if (authError) {
+        setError(authError.message.includes("already registered")
+          ? "Этот email уже зарегистрирован. Войдите в систему."
+          : "Не удалось зарегистрироваться. Попробуйте снова.");
+        setIsLoading(false);
+        return;
+      }
+
+      setSuccessMessage("Аккаунт создан! Теперь войдите в систему.");
+      setMode("login");
+      setPassword("");
       setIsLoading(false);
-      return;
     }
+  };
 
-    navigate("/dashboard");
+  const switchMode = () => {
+    setMode((m) => (m === "login" ? "register" : "login"));
+    setError(null);
+    setSuccessMessage(null);
+    setPassword("");
   };
 
   return (
@@ -44,10 +74,12 @@ export default function Login() {
         <div className="bg-card border border-border rounded-3xl p-8 shadow-sm space-y-6">
           <div className="space-y-1">
             <h1 className="font-display text-2xl font-semibold text-foreground">
-              Вход в систему
+              {mode === "login" ? "Вход в систему" : "Регистрация"}
             </h1>
             <p className="text-sm text-muted-foreground">
-              Войдите, чтобы управлять записями и услугами.
+              {mode === "login"
+                ? "Войдите, чтобы управлять записями и услугами."
+                : "Создайте аккаунт мастера AuraBook."}
             </p>
           </div>
 
@@ -55,6 +87,13 @@ export default function Login() {
             <div className="flex items-start gap-3 bg-dusty-rose/10 border border-dusty-rose/30 rounded-2xl px-4 py-3">
               <AlertCircle className="w-4 h-4 text-dusty-rose mt-0.5 flex-shrink-0" />
               <p className="text-sm text-dusty-rose leading-relaxed">{error}</p>
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="flex items-start gap-3 bg-sage/10 border border-sage/30 rounded-2xl px-4 py-3">
+              <Sparkles className="w-4 h-4 text-sage mt-0.5 flex-shrink-0" />
+              <p className="text-sm text-sage leading-relaxed">{successMessage}</p>
             </div>
           )}
 
@@ -91,6 +130,7 @@ export default function Login() {
                 <input
                   type={showPassword ? "text" : "password"}
                   required
+                  minLength={6}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
@@ -115,6 +155,11 @@ export default function Login() {
                   )}
                 </button>
               </div>
+              {mode === "register" && (
+                <p className="text-[11px] text-muted-foreground">
+                  Минимум 6 символов
+                </p>
+              )}
             </div>
 
             <button
@@ -130,20 +175,25 @@ export default function Login() {
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Вход…
+                  {mode === "login" ? "Вход…" : "Регистрация…"}
                 </>
-              ) : (
+              ) : mode === "login" ? (
                 "Войти"
+              ) : (
+                "Зарегистрироваться"
               )}
             </button>
           </form>
         </div>
 
         <p className="text-center text-xs text-muted-foreground mt-6">
-          Нет аккаунта?{" "}
-          <span className="text-sage font-medium cursor-pointer hover:underline">
-            Обратитесь в поддержку
-          </span>
+          {mode === "login" ? "Нет аккаунта? " : "Уже есть аккаунт? "}
+          <button
+            onClick={switchMode}
+            className="text-sage font-medium hover:underline"
+          >
+            {mode === "login" ? "Зарегистрироваться" : "Войти"}
+          </button>
         </p>
       </div>
     </div>
