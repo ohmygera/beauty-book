@@ -1,17 +1,28 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sun, Moon, LogOut, Sparkles, CalendarDays, Scissors, Settings } from "lucide-react";
+import {
+  Sun,
+  Moon,
+  LogOut,
+  Sparkles,
+  CalendarDays,
+  Scissors,
+  Settings,
+  Users,
+} from "lucide-react";
 import { supabase } from "@/config/supabase";
 import { useUIStore } from "@/store/useUIStore";
 import { CalendarTab } from "@/pages/dashboard/CalendarTab";
 import { ServicesTab } from "@/pages/dashboard/ServicesTab";
 import { SettingsTab } from "@/pages/dashboard/SettingsTab";
+import { ClientsTab } from "@/pages/dashboard/ClientsTab";
 import { cn } from "@/lib/utils";
 
-type Tab = "calendar" | "services" | "settings";
+type Tab = "calendar" | "clients" | "services" | "settings";
 
 const NAV_ITEMS: { id: Tab; label: string; Icon: React.ElementType }[] = [
   { id: "calendar", label: "Calendar", Icon: CalendarDays },
+  { id: "clients", label: "Clients", Icon: Users },
   { id: "services", label: "Services", Icon: Scissors },
   { id: "settings", label: "Settings", Icon: Settings },
 ];
@@ -68,8 +79,9 @@ export function DashboardLayout() {
       {/* ── Tab content ── */}
       <main className="flex-1 overflow-y-auto pb-28">
         <div className="max-w-2xl mx-auto px-5 py-6">
-          <div className="animate-fade-in">
+          <div key={activeTab} className="animate-fade-in">
             {activeTab === "calendar" && <CalendarTab />}
+            {activeTab === "clients" && <ClientsTab />}
             {activeTab === "services" && <ServicesTab />}
             {activeTab === "settings" && <SettingsTab />}
           </div>
@@ -86,16 +98,25 @@ export function DashboardLayout() {
                 key={id}
                 onClick={() => setActiveTab(id)}
                 className={cn(
-                  "flex-1 flex flex-col items-center gap-1 py-3 px-2 transition-colors relative",
-                  isActive ? "text-sage" : "text-muted-foreground hover:text-foreground"
+                  "flex-1 flex flex-col items-center gap-1 py-3 px-1 transition-colors relative",
+                  isActive
+                    ? "text-sage"
+                    : "text-muted-foreground hover:text-foreground"
                 )}
                 aria-label={label}
               >
                 {isActive && (
                   <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-sage" />
                 )}
-                <Icon className={cn("w-5 h-5 transition-transform", isActive && "scale-110")} />
-                <span className="text-[10px] font-semibold tracking-wide">{label}</span>
+                <Icon
+                  className={cn(
+                    "w-5 h-5 transition-transform",
+                    isActive && "scale-110"
+                  )}
+                />
+                <span className="text-[10px] font-semibold tracking-wide">
+                  {label}
+                </span>
               </button>
             );
           })}

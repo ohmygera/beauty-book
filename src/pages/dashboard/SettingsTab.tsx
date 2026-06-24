@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { User, Clock, Bell, Link, Copy, Check, Loader2, Shield } from "lucide-react";
 import { useMasterSettings } from "@/hooks/useMasterSettings";
+import { OperatingHoursSection } from "@/pages/dashboard/OperatingHoursSection";
 import { showSuccess, showError } from "@/utils/toast";
 import { cn } from "@/lib/utils";
 
@@ -32,7 +33,9 @@ export function SettingsTab() {
     });
   }, [master]);
 
-  const bookingUrl = master ? `${window.location.origin}/b/${master.username}` : "";
+  const bookingUrl = master
+    ? `${window.location.origin}/b/${master.username}`
+    : "";
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(bookingUrl);
@@ -97,11 +100,15 @@ export function SettingsTab() {
       <div className="bg-card border border-border rounded-2xl p-4 space-y-3 transition-all duration-200">
         <div className="flex items-center gap-2">
           <Link className="w-4 h-4 text-sage" />
-          <p className="text-sm font-semibold text-foreground">Your Booking Link</p>
+          <p className="text-sm font-semibold text-foreground">
+            Your Booking Link
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex-1 px-3 py-2 rounded-xl bg-background border border-input">
-            <p className="text-xs text-muted-foreground truncate">{bookingUrl}</p>
+            <p className="text-xs text-muted-foreground truncate">
+              {bookingUrl}
+            </p>
           </div>
           <button
             onClick={handleCopy}
@@ -113,7 +120,11 @@ export function SettingsTab() {
             )}
             title="Copy link"
           >
-            {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            {copied ? (
+              <Check className="w-4 h-4" />
+            ) : (
+              <Copy className="w-4 h-4" />
+            )}
           </button>
         </div>
       </div>
@@ -190,6 +201,9 @@ export function SettingsTab() {
         </button>
       </section>
 
+      {/* Operating Hours */}
+      <OperatingHoursSection />
+
       {/* Scheduling settings */}
       <section className="bg-card border border-border rounded-2xl p-4 space-y-4 transition-all duration-200">
         <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
@@ -210,14 +224,19 @@ export function SettingsTab() {
             onChange={(e) =>
               setScheduling((p) => ({
                 ...p,
-                buffer_time_minutes: Math.min(120, Math.max(0, parseInt(e.target.value) || 0)),
+                buffer_time_minutes: Math.min(
+                  120,
+                  Math.max(0, parseInt(e.target.value) || 0)
+                ),
               }))
             }
             className={inputClass}
           />
           <p className="text-[11px] text-muted-foreground">
             Gap between appointments · currently{" "}
-            <span className="font-medium text-foreground">{scheduling.buffer_time_minutes}m</span>
+            <span className="font-medium text-foreground">
+              {scheduling.buffer_time_minutes}m
+            </span>
           </p>
         </div>
 
@@ -235,14 +254,19 @@ export function SettingsTab() {
             onChange={(e) =>
               setScheduling((p) => ({
                 ...p,
-                advance_notice_hours: Math.min(72, Math.max(0, parseInt(e.target.value) || 0)),
+                advance_notice_hours: Math.min(
+                  72,
+                  Math.max(0, parseInt(e.target.value) || 0)
+                ),
               }))
             }
             className={inputClass}
           />
           <p className="text-[11px] text-muted-foreground">
             Minimum lead time before booking · currently{" "}
-            <span className="font-medium text-foreground">{scheduling.advance_notice_hours}h</span>
+            <span className="font-medium text-foreground">
+              {scheduling.advance_notice_hours}h
+            </span>
           </p>
         </div>
 
