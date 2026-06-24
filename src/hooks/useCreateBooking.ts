@@ -6,8 +6,8 @@ interface BookingPayload {
   masterId: string;
   fullName: string;
   phoneNumber: string;
-  appointmentDate: string; // YYYY-MM-DD
-  startTime: string; // HH:MM
+  appointmentDate: string;
+  startTime: string;
   totalDurationMinutes: number;
   totalCost: number;
   services: SelectedService[];
@@ -23,6 +23,8 @@ function addMinutes(time: string, minutes: number): string {
     .padStart(2, "0")}:00`;
 }
 
+export const SLOT_TAKEN_ERROR = "SLOT_TAKEN";
+
 export function useCreateBooking() {
   return useMutation({
     mutationFn: async (payload: BookingPayload) => {
@@ -37,27 +39,33 @@ export function useCreateBooking() {
         services,
       } = payload;
 
-      const endTime = addMinutes(startTime, totalDurationMinutes);
-      const startTimeFull = `${startTime}:00`;
+      const cleanedPhone = phoneNumber.replace(/[\s()\-]/g, "");
 
-      // Find or create client
-      const { data: existingClient } = await supabase
+      // ── Blacklist pre-check ────────────────────────────────────────────────
+      // Silently reject blacklisted numbers with a generic slot-taken message
+      // so the client has no signal they are blocked.
+      const { data: existingRecord } = await supabase
         .from("clients")
-        .select("id")
+        .select("id, is_blacklisted")
         .eq("master_id", masterId)
-        .eq("phone_number", phoneNumber)
+        .eq("phone_number", cleanedPhone)
         .maybeSingle();
 
+      if (existingRecord?.is_blacklisted === true) {
+        throw new Error(SLOT_TAKEN_ERROR);
+      }
+
+      // ── Upsert client ─────────────────────────────────────────────────────
       let clientId: string;
-      if (existingClient) {
-        clientId = existingClient.id;
+      if (existingRecord) {
+        clientId = existingRecord.id;
       } else {
         const { data: newClient, error: clientError } = await supabase
           .from("clients")
           .insert({
             master_id: masterId,
             full_name: fullName,
-            phone_number: phoneNumber,
+            phone_number: cleanedPhone,
           })
           .select("id")
           .single();
@@ -65,7 +73,10 @@ export function useCreateBooking() {
         clientId = newClient.id;
       }
 
-      // Create appointment
+      // ── Create appointment ────────────────────────────────────────────────
+      const endTime = addMinutes(startTime, totalDurationMinutes);
+      const startTimeFull = `${startTime}:00`;
+
       const { data: appointment, error: aptError } = await supabase
         .from("appointments")
         .insert({
@@ -81,7 +92,7 @@ export function useCreateBooking() {
         .single();
       if (aptError) throw aptError;
 
-      // Link services
+      // ── Link services ─────────────────────────────────────────────────────
       const { error: asError } = await supabase
         .from("appointment_services")
         .insert(

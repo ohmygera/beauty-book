@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  User, Clock, Bell, Link, Copy, Check, Loader2, Shield,
-} from "lucide-react";
+import { User, Clock, Bell, Link, Copy, Check, Loader2, Shield } from "lucide-react";
 import { useMasterSettings } from "@/hooks/useMasterSettings";
 import { showSuccess, showError } from "@/utils/toast";
 import { cn } from "@/lib/utils";
@@ -21,7 +19,6 @@ export function SettingsTab() {
     advance_notice_hours: 2,
   });
 
-  // Sync state when data loads
   useEffect(() => {
     if (!master) return;
     setProfile({
@@ -35,9 +32,7 @@ export function SettingsTab() {
     });
   }, [master]);
 
-  const bookingUrl = master
-    ? `${window.location.origin}/b/${master.username}`
-    : "";
+  const bookingUrl = master ? `${window.location.origin}/b/${master.username}` : "";
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(bookingUrl);
@@ -61,7 +56,7 @@ export function SettingsTab() {
   };
 
   const inputClass =
-    "w-full px-3.5 py-2.5 rounded-xl text-sm bg-background border border-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-colors";
+    "w-full px-3.5 py-2.5 rounded-xl text-sm bg-background border border-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all duration-200";
 
   if (query.isLoading) {
     return (
@@ -83,9 +78,9 @@ export function SettingsTab() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Profile card */}
-      <div className="bg-card border border-border rounded-2xl p-5 flex items-center gap-4">
+    <div className="space-y-6 animate-fade-in">
+      {/* Profile summary card */}
+      <div className="bg-card border border-border rounded-2xl p-5 flex items-center gap-4 transition-all duration-200">
         <div className="w-14 h-14 rounded-2xl bg-sage/20 flex items-center justify-center flex-shrink-0">
           <User className="w-6 h-6 text-sage" />
         </div>
@@ -99,7 +94,7 @@ export function SettingsTab() {
       </div>
 
       {/* Booking URL */}
-      <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
+      <div className="bg-card border border-border rounded-2xl p-4 space-y-3 transition-all duration-200">
         <div className="flex items-center gap-2">
           <Link className="w-4 h-4 text-sage" />
           <p className="text-sm font-semibold text-foreground">Your Booking Link</p>
@@ -111,24 +106,20 @@ export function SettingsTab() {
           <button
             onClick={handleCopy}
             className={cn(
-              "flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-colors border",
+              "flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 border active:scale-90",
               copied
                 ? "bg-sage/15 border-sage/40 text-sage"
                 : "bg-card border-border text-muted-foreground hover:bg-accent"
             )}
             title="Copy link"
           >
-            {copied ? (
-              <Check className="w-4 h-4" />
-            ) : (
-              <Copy className="w-4 h-4" />
-            )}
+            {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
           </button>
         </div>
       </div>
 
       {/* Profile settings */}
-      <section className="bg-card border border-border rounded-2xl p-4 space-y-4">
+      <section className="bg-card border border-border rounded-2xl p-4 space-y-4 transition-all duration-200">
         <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
           Profile
         </p>
@@ -139,6 +130,7 @@ export function SettingsTab() {
           </label>
           <input
             value={profile.display_name}
+            maxLength={60}
             onChange={(e) =>
               setProfile((p) => ({ ...p, display_name: e.target.value }))
             }
@@ -153,6 +145,7 @@ export function SettingsTab() {
           </label>
           <textarea
             value={profile.bio}
+            maxLength={400}
             onChange={(e) =>
               setProfile((p) => ({ ...p, bio: e.target.value }))
             }
@@ -160,6 +153,9 @@ export function SettingsTab() {
             rows={3}
             className={cn(inputClass, "resize-none")}
           />
+          <p className="text-[11px] text-muted-foreground text-right">
+            {(profile.bio ?? "").length}/400
+          </p>
         </div>
 
         <div className="space-y-1.5">
@@ -168,9 +164,13 @@ export function SettingsTab() {
           </label>
           <input
             type="tel"
+            maxLength={16}
             value={profile.phone_number}
             onChange={(e) =>
-              setProfile((p) => ({ ...p, phone_number: e.target.value }))
+              setProfile((p) => ({
+                ...p,
+                phone_number: e.target.value.replace(/[^\d+\s()\-]/g, ""),
+              }))
             }
             placeholder="+7 999 000 00 00"
             className={inputClass}
@@ -180,7 +180,7 @@ export function SettingsTab() {
         <button
           onClick={handleSaveProfile}
           disabled={updateSettings.isPending}
-          className="w-full py-2.5 rounded-xl bg-sage hover:bg-sage-dark text-white text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
+          className="w-full py-2.5 rounded-xl bg-sage hover:bg-sage-dark active:scale-[0.98] text-white text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-60"
         >
           {updateSettings.isPending ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -191,7 +191,7 @@ export function SettingsTab() {
       </section>
 
       {/* Scheduling settings */}
-      <section className="bg-card border border-border rounded-2xl p-4 space-y-4">
+      <section className="bg-card border border-border rounded-2xl p-4 space-y-4 transition-all duration-200">
         <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
           Scheduling
         </p>
@@ -210,13 +210,14 @@ export function SettingsTab() {
             onChange={(e) =>
               setScheduling((p) => ({
                 ...p,
-                buffer_time_minutes: parseInt(e.target.value) || 0,
+                buffer_time_minutes: Math.min(120, Math.max(0, parseInt(e.target.value) || 0)),
               }))
             }
             className={inputClass}
           />
           <p className="text-[11px] text-muted-foreground">
-            Gap between appointments (currently {scheduling.buffer_time_minutes}m)
+            Gap between appointments · currently{" "}
+            <span className="font-medium text-foreground">{scheduling.buffer_time_minutes}m</span>
           </p>
         </div>
 
@@ -234,20 +235,21 @@ export function SettingsTab() {
             onChange={(e) =>
               setScheduling((p) => ({
                 ...p,
-                advance_notice_hours: parseInt(e.target.value) || 0,
+                advance_notice_hours: Math.min(72, Math.max(0, parseInt(e.target.value) || 0)),
               }))
             }
             className={inputClass}
           />
           <p className="text-[11px] text-muted-foreground">
-            Minimum lead time before booking (currently {scheduling.advance_notice_hours}h)
+            Minimum lead time before booking · currently{" "}
+            <span className="font-medium text-foreground">{scheduling.advance_notice_hours}h</span>
           </p>
         </div>
 
         <button
           onClick={handleSaveScheduling}
           disabled={updateSettings.isPending}
-          className="w-full py-2.5 rounded-xl bg-sage hover:bg-sage-dark text-white text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
+          className="w-full py-2.5 rounded-xl bg-sage hover:bg-sage-dark active:scale-[0.98] text-white text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-60"
         >
           {updateSettings.isPending ? (
             <Loader2 className="w-4 h-4 animate-spin" />

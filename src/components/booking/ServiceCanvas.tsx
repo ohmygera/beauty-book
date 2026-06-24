@@ -40,7 +40,7 @@ export function ServiceCanvas({ master, onNext }: ServiceCanvasProps) {
 
   if (isLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center">
+      <div className="flex-1 flex items-center justify-center py-20">
         <Loader2 className="w-6 h-6 text-sage animate-spin" />
       </div>
     );
@@ -48,7 +48,7 @@ export function ServiceCanvas({ master, onNext }: ServiceCanvasProps) {
 
   if (!services?.length) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center gap-2 px-6 text-center">
+      <div className="flex-1 flex flex-col items-center justify-center gap-2 px-6 py-20 text-center">
         <p className="font-display text-lg text-foreground">No services available</p>
         <p className="text-sm text-muted-foreground">
           {master.display_name} hasn't listed any services yet.
@@ -59,34 +59,42 @@ export function ServiceCanvas({ master, onNext }: ServiceCanvasProps) {
 
   return (
     <div className="flex flex-col min-h-0">
-      <div className="px-5 pb-4 space-y-3 overflow-y-auto pb-36">
+      <div className="space-y-3 pb-36">
         <div className="pt-2 pb-1">
-          <h2 className="font-display text-xl font-semibold text-foreground">Choose services</h2>
+          <h2 className="font-display text-xl font-semibold text-foreground">
+            Choose services
+          </h2>
           <p className="text-sm text-muted-foreground mt-0.5">
             Select one or more services to book
           </p>
         </div>
 
-        {services.map((svc) => {
+        {services.map((svc, index) => {
           const isSelected = selectedIds.has(svc.id);
           return (
             <button
               key={svc.id}
               onClick={() => toggle(svc.id)}
+              style={{ animationDelay: `${index * 55}ms` }}
               className={cn(
-                "w-full text-left bg-card border rounded-2xl p-4 flex items-start gap-3 transition-all",
+                "w-full text-left bg-card border rounded-2xl p-4 flex items-start gap-3",
+                "opacity-0 animate-slide-up",
+                "transition-all duration-200 ease-out",
+                "active:scale-[0.98]",
                 isSelected
-                  ? "border-sage ring-1 ring-sage/30 bg-sage/5"
-                  : "border-border hover:border-sage/40"
+                  ? "border-sage ring-1 ring-sage/30 bg-sage/5 shadow-sm"
+                  : "border-border hover:border-sage/40 hover:shadow-sm"
               )}
             >
-              <div className="mt-0.5 flex-shrink-0">
+              {/* Checkbox */}
+              <div className="mt-0.5 flex-shrink-0 transition-transform duration-150">
                 {isSelected ? (
-                  <CheckCircle2 className="w-5 h-5 text-sage" />
+                  <CheckCircle2 className="w-5 h-5 text-sage scale-110" />
                 ) : (
                   <Circle className="w-5 h-5 text-muted-foreground" />
                 )}
               </div>
+
               <div className="flex-1 space-y-1">
                 <p className="text-sm font-semibold text-foreground">{svc.name}</p>
                 {svc.description && (
@@ -110,10 +118,10 @@ export function ServiceCanvas({ master, onNext }: ServiceCanvasProps) {
       </div>
 
       {/* Sticky bottom bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t border-border p-4">
+      <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t border-border p-4 transition-all duration-300">
         <div className="max-w-2xl mx-auto space-y-3">
           {selected.length > 0 && (
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center justify-between text-sm animate-fade-in">
               <span className="text-muted-foreground">
                 {selected.length} service{selected.length > 1 ? "s" : ""} ·{" "}
                 {formatDuration(totalDuration)}
@@ -125,16 +133,21 @@ export function ServiceCanvas({ master, onNext }: ServiceCanvasProps) {
           )}
           <button
             disabled={selected.length === 0}
-            onClick={() => onNext(selected.map((s) => ({
-              id: s.id,
-              name: s.name,
-              price_amount: s.price_amount,
-              duration_minutes: s.duration_minutes,
-            })))}
+            onClick={() =>
+              onNext(
+                selected.map((s) => ({
+                  id: s.id,
+                  name: s.name,
+                  price_amount: s.price_amount,
+                  duration_minutes: s.duration_minutes,
+                }))
+              )
+            }
             className={cn(
-              "w-full py-3 rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 transition-all",
+              "w-full py-3 rounded-2xl text-sm font-semibold flex items-center justify-center gap-2",
+              "transition-all duration-200 active:scale-[0.98]",
               selected.length > 0
-                ? "bg-sage hover:bg-sage-dark text-white"
+                ? "bg-sage hover:bg-sage-dark text-white shadow-sm hover:shadow-md"
                 : "bg-muted text-muted-foreground cursor-not-allowed"
             )}
           >

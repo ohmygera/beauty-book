@@ -9,6 +9,8 @@ import type { SelectedService } from "@/hooks/usePublicServices";
 
 type Step = "services" | "schedule" | "checkout" | "success";
 
+const STEP_ORDER: Step[] = ["services", "schedule", "checkout"];
+
 export default function BookingPage() {
   const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
@@ -45,39 +47,40 @@ export default function BookingPage() {
     success: "Booked!",
   };
 
-  const showBackArrow = step === "services";
+  const stepIndex = STEP_ORDER.indexOf(step);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-border px-5 py-3 flex items-center gap-3">
-        {showBackArrow ? (
+        {step === "services" ? (
           <button
             onClick={() => navigate(-1)}
-            className="w-8 h-8 rounded-full bg-card border border-border flex items-center justify-center hover:bg-accent transition-colors"
+            className="w-8 h-8 rounded-full bg-card border border-border flex items-center justify-center hover:bg-accent transition-colors active:scale-90"
           >
             <ArrowLeft className="w-4 h-4 text-foreground" />
           </button>
         ) : null}
+
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-sage" />
-          <span className="font-display text-lg font-semibold text-foreground">
+          <span className="font-display text-lg font-semibold text-foreground transition-all duration-300">
             {stepTitle[step]}
           </span>
         </div>
 
-        {/* Step indicator */}
+        {/* Step dots */}
         {step !== "success" && (
           <div className="ml-auto flex items-center gap-1.5">
-            {(["services", "schedule", "checkout"] as Step[]).map((s, i) => (
+            {STEP_ORDER.map((s, i) => (
               <div
                 key={s}
-                className={`w-2 h-2 rounded-full transition-colors ${
+                className={`rounded-full transition-all duration-300 ${
                   s === step
-                    ? "bg-sage"
-                    : i < ["services", "schedule", "checkout"].indexOf(step)
-                    ? "bg-sage/40"
-                    : "bg-border"
+                    ? "bg-sage w-4 h-2"
+                    : i < stepIndex
+                    ? "bg-sage/40 w-2 h-2"
+                    : "bg-border w-2 h-2"
                 }`}
               />
             ))}
@@ -85,81 +88,79 @@ export default function BookingPage() {
         )}
       </header>
 
+      {/* Step content — keyed so it re-animates on every step change */}
       <main className="max-w-2xl mx-auto px-5 py-6">
-        {step === "services" && (
-          <ServiceCanvas
-            master={master}
-            onNext={(services) => {
-              setSelectedServices(services);
-              setStep("schedule");
-            }}
-          />
-        )}
+        <div key={step} className="animate-fade-in">
+          {step === "services" && (
+            <ServiceCanvas
+              master={master}
+              onNext={(services) => {
+                setSelectedServices(services);
+                setStep("schedule");
+              }}
+            />
+          )}
 
-        {step === "schedule" && (
-          <SchedulerMatrix
-            master={master}
-            selectedServices={selectedServices}
-            onBack={() => setStep("services")}
-            onNext={(date, time) => {
-              setSelectedDate(date);
-              setSelectedTime(time);
-              setStep("checkout");
-            }}
-          />
-        )}
+          {step === "schedule" && (
+            <SchedulerMatrix
+              master={master}
+              selectedServices={selectedServices}
+              onBack={() => setStep("services")}
+              onNext={(date, time) => {
+                setSelectedDate(date);
+                setSelectedTime(time);
+                setStep("checkout");
+              }}
+            />
+          )}
 
-        {step === "checkout" && (
-          <CheckoutCard
-            master={master}
-            selectedServices={selectedServices}
-            date={selectedDate}
-            time={selectedTime}
-            onBack={() => setStep("schedule")}
-            onSuccess={() => setStep("success")}
-          />
-        )}
+          {step === "checkout" && (
+            <CheckoutCard
+              master={master}
+              selectedServices={selectedServices}
+              date={selectedDate}
+              time={selectedTime}
+              onBack={() => setStep("schedule")}
+              onSuccess={() => setStep("success")}
+            />
+          )}
 
-        {step === "success" && (
-          <div className="flex flex-col items-center justify-center min-h-[60vh] gap-5 text-center px-4 animate-fade-in">
-            <div className="w-20 h-20 rounded-3xl bg-sage/15 flex items-center justify-center">
-              <CheckCircle2 className="w-10 h-10 text-sage" />
-            </div>
-            <div className="space-y-2">
-              <h2 className="font-display text-2xl font-semibold text-foreground">
-                You're all set!
-              </h2>
-              <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
-                Your appointment with{" "}
-                <span className="font-medium text-foreground">
-                  {master.display_name}
-                </span>{" "}
-                on{" "}
-                <span className="font-medium text-foreground">
-                  {selectedDate}
-                </span>{" "}
-                at{" "}
-                <span className="font-medium text-foreground">
-                  {selectedTime}
-                </span>{" "}
-                is confirmed.
+          {step === "success" && (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-5 text-center px-4">
+              {/* Success icon with scale-in */}
+              <div className="w-20 h-20 rounded-3xl bg-sage/15 flex items-center justify-center animate-scale-in">
+                <CheckCircle2 className="w-10 h-10 text-sage" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="font-display text-2xl font-semibold text-foreground">
+                  You're all set!
+                </h2>
+                <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
+                  Your appointment with{" "}
+                  <span className="font-medium text-foreground">
+                    {master.display_name}
+                  </span>{" "}
+                  on{" "}
+                  <span className="font-medium text-foreground">{selectedDate}</span> at{" "}
+                  <span className="font-medium text-foreground">{selectedTime}</span>{" "}
+                  is confirmed.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setStep("services");
+                  setSelectedServices([]);
+                }}
+                className="mt-2 px-6 py-2.5 rounded-xl bg-sage hover:bg-sage-dark active:scale-95 text-white text-sm font-semibold transition-all duration-200"
+              >
+                Book Another
+              </button>
+              <p className="text-xs text-muted-foreground">
+                Powered by <span className="text-sage font-medium">AuraBook</span>
               </p>
             </div>
-            <button
-              onClick={() => {
-                setStep("services");
-                setSelectedServices([]);
-              }}
-              className="mt-2 px-6 py-2.5 rounded-xl bg-sage hover:bg-sage-dark text-white text-sm font-semibold transition-colors"
-            >
-              Book Another
-            </button>
-            <p className="text-xs text-muted-foreground">
-              Powered by{" "}
-              <span className="text-sage font-medium">AuraBook</span>
-            </p>
-          </div>
-        )}
+          )}
+        </div>
       </main>
     </div>
   );

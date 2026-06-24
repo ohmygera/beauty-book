@@ -36,7 +36,7 @@ function AddServiceSheet({ onClose }: { onClose: () => void }) {
   };
 
   const inputClass =
-    "w-full px-3.5 py-2.5 rounded-xl text-sm bg-background border border-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-colors";
+    "w-full px-3.5 py-2.5 rounded-xl text-sm bg-background border border-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all duration-200";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 pt-2">
@@ -46,6 +46,7 @@ function AddServiceSheet({ onClose }: { onClose: () => void }) {
         </label>
         <input
           required
+          maxLength={80}
           value={form.name}
           onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
           placeholder="e.g. Signature Facial"
@@ -57,6 +58,7 @@ function AddServiceSheet({ onClose }: { onClose: () => void }) {
           Description
         </label>
         <textarea
+          maxLength={300}
           value={form.description}
           onChange={(e) =>
             setForm((p) => ({ ...p, description: e.target.value }))
@@ -65,6 +67,9 @@ function AddServiceSheet({ onClose }: { onClose: () => void }) {
           rows={2}
           className={cn(inputClass, "resize-none")}
         />
+        <p className="text-[11px] text-muted-foreground text-right">
+          {form.description.length}/300
+        </p>
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">
@@ -75,6 +80,7 @@ function AddServiceSheet({ onClose }: { onClose: () => void }) {
             type="number"
             required
             min={0}
+            max={999999}
             value={form.price_amount || ""}
             onChange={(e) =>
               setForm((p) => ({
@@ -94,6 +100,7 @@ function AddServiceSheet({ onClose }: { onClose: () => void }) {
             type="number"
             required
             min={5}
+            max={480}
             value={form.duration_minutes || ""}
             onChange={(e) =>
               setForm((p) => ({
@@ -111,17 +118,15 @@ function AddServiceSheet({ onClose }: { onClose: () => void }) {
         <span className="text-sm text-foreground">Visible to clients</span>
         <button
           type="button"
-          onClick={() =>
-            setForm((p) => ({ ...p, is_visible: !p.is_visible }))
-          }
+          onClick={() => setForm((p) => ({ ...p, is_visible: !p.is_visible }))}
           className={cn(
-            "relative w-10 h-6 rounded-full transition-colors",
+            "relative w-10 h-6 rounded-full transition-colors duration-200",
             form.is_visible ? "bg-sage" : "bg-muted border border-border"
           )}
         >
           <span
             className={cn(
-              "absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all",
+              "absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all duration-200",
               form.is_visible ? "left-5" : "left-1"
             )}
           />
@@ -131,7 +136,7 @@ function AddServiceSheet({ onClose }: { onClose: () => void }) {
       <button
         type="submit"
         disabled={createService.isPending}
-        className="w-full py-2.5 rounded-xl bg-sage hover:bg-sage-dark text-white text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
+        className="w-full py-2.5 rounded-xl bg-sage hover:bg-sage-dark active:scale-[0.98] text-white text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-60"
       >
         {createService.isPending ? (
           <Loader2 className="w-4 h-4 animate-spin" />
@@ -168,26 +173,21 @@ export function ServicesTab() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-display text-lg font-semibold text-foreground">
-            Services
-          </h2>
+          <h2 className="font-display text-lg font-semibold text-foreground">Services</h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {services.filter((s) => s.is_visible).length} visible ·{" "}
-            {services.length} total
+            {services.filter((s) => s.is_visible).length} visible · {services.length} total
           </p>
         </div>
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetTrigger asChild>
-            <button className="flex items-center gap-1.5 bg-sage hover:bg-sage-dark text-white text-sm font-semibold px-3.5 py-2 rounded-xl transition-colors">
+            <button className="flex items-center gap-1.5 bg-sage hover:bg-sage-dark active:scale-95 text-white text-sm font-semibold px-3.5 py-2 rounded-xl transition-all duration-200">
               <Plus className="w-4 h-4" />
               Add
             </button>
           </SheetTrigger>
           <SheetContent side="bottom" className="rounded-t-3xl">
             <SheetHeader>
-              <SheetTitle className="font-display text-lg">
-                New Service
-              </SheetTitle>
+              <SheetTitle className="font-display text-lg">New Service</SheetTitle>
             </SheetHeader>
             <div className="px-1 pb-4">
               <AddServiceSheet onClose={() => setSheetOpen(false)} />
@@ -196,7 +196,6 @@ export function ServicesTab() {
         </Sheet>
       </div>
 
-      {/* Query error */}
       {query.isError && (
         <div className="flex items-start gap-3 bg-dusty-rose/10 border border-dusty-rose/30 rounded-2xl px-4 py-3">
           <AlertCircle className="w-4 h-4 text-dusty-rose mt-0.5" />
@@ -204,34 +203,29 @@ export function ServicesTab() {
         </div>
       )}
 
-      {/* Service list */}
       {services.length === 0 && !query.isLoading ? (
         <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
-          <p className="text-sm font-semibold text-foreground">
-            No services yet
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Tap "Add" to create your first service
-          </p>
+          <p className="text-sm font-semibold text-foreground">No services yet</p>
+          <p className="text-xs text-muted-foreground">Tap "Add" to create your first service</p>
         </div>
       ) : (
         <div className="space-y-3">
-          {services.map((svc) => (
+          {services.map((svc, i) => (
             <div
               key={svc.id}
+              style={{ animationDelay: `${i * 50}ms` }}
               className={cn(
-                "bg-card border rounded-2xl p-4 flex items-start gap-3 transition-opacity",
+                "bg-card border rounded-2xl p-4 flex items-start gap-3",
+                "opacity-0 animate-slide-up",
+                "transition-all duration-200 hover:shadow-sm",
                 svc.is_visible ? "border-border" : "border-border opacity-55"
               )}
             >
               <GripVertical className="w-4 h-4 text-muted-foreground mt-1 flex-shrink-0 cursor-grab" />
-
               <div className="flex-1 space-y-2">
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <p className="text-sm font-semibold text-foreground">
-                      {svc.name}
-                    </p>
+                    <p className="text-sm font-semibold text-foreground">{svc.name}</p>
                     {svc.description && (
                       <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
                         {svc.description}
@@ -244,17 +238,13 @@ export function ServicesTab() {
                         { id: svc.id, isVisible: !svc.is_visible },
                         {
                           onSuccess: () =>
-                            showSuccess(
-                              svc.is_visible
-                                ? "Service hidden"
-                                : "Service visible"
-                            ),
+                            showSuccess(svc.is_visible ? "Service hidden" : "Service visible"),
                           onError: () => showError("Failed to update"),
                         }
                       )
                     }
                     disabled={toggleVisibility.isPending}
-                    className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-accent border border-border transition-colors flex-shrink-0"
+                    className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-accent border border-border transition-all duration-150 flex-shrink-0 active:scale-90"
                     title={svc.is_visible ? "Hide service" : "Show service"}
                   >
                     {svc.is_visible ? (
@@ -264,7 +254,6 @@ export function ServicesTab() {
                     )}
                   </button>
                 </div>
-
                 <div className="flex items-center gap-3">
                   <span className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Clock className="w-3 h-3" />

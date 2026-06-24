@@ -6,37 +6,26 @@
 
 @layer base {
   :root {
-    /* AuraBook Light Theme */
-    --background: 40 33% 97%;        /* #FDFBF7 milk-white */
-    --foreground: 0 0% 17%;          /* #2C2C2C deep graphite */
-
-    --card: 40 29% 94%;              /* #F7F4EB cream */
+    --background: 40 33% 97%;
+    --foreground: 0 0% 17%;
+    --card: 40 29% 94%;
     --card-foreground: 0 0% 17%;
-
     --popover: 40 33% 97%;
     --popover-foreground: 0 0% 17%;
-
-    --primary: 113 7% 56%;           /* #8A9A86 sage green */
+    --primary: 113 7% 56%;
     --primary-foreground: 40 33% 97%;
-
-    --secondary: 13 25% 68%;         /* #C6A49A dusty rose */
+    --secondary: 13 25% 68%;
     --secondary-foreground: 40 33% 97%;
-
     --muted: 40 29% 94%;
     --muted-foreground: 0 0% 45%;
-
     --accent: 40 29% 90%;
     --accent-foreground: 0 0% 17%;
-
     --destructive: 0 72% 51%;
     --destructive-foreground: 40 33% 97%;
-
     --border: 40 20% 88%;
     --input: 40 20% 88%;
     --ring: 113 7% 56%;
-
     --radius: 0.75rem;
-
     --sidebar-background: 40 29% 94%;
     --sidebar-foreground: 0 0% 17%;
     --sidebar-primary: 113 7% 56%;
@@ -48,35 +37,25 @@
   }
 
   .dark {
-    /* AuraBook Dark Theme */
-    --background: 240 1% 12%;        /* #1E1E1F deep charcoal */
-    --foreground: 0 0% 90%;          /* #E5E5E5 warm off-white */
-
-    --card: 240 1% 15%;              /* #262627 warm charcoal */
+    --background: 240 1% 12%;
+    --foreground: 0 0% 90%;
+    --card: 240 1% 15%;
     --card-foreground: 0 0% 90%;
-
     --popover: 240 1% 15%;
     --popover-foreground: 0 0% 90%;
-
-    --primary: 113 7% 56%;           /* #8A9A86 sage green */
+    --primary: 113 7% 56%;
     --primary-foreground: 240 1% 12%;
-
-    --secondary: 13 25% 68%;         /* #C6A49A dusty rose */
+    --secondary: 13 25% 68%;
     --secondary-foreground: 240 1% 12%;
-
     --muted: 240 1% 20%;
     --muted-foreground: 0 0% 65%;
-
     --accent: 240 1% 22%;
     --accent-foreground: 0 0% 90%;
-
     --destructive: 0 63% 45%;
     --destructive-foreground: 0 0% 90%;
-
     --border: 240 1% 22%;
     --input: 240 1% 22%;
     --ring: 113 7% 56%;
-
     --sidebar-background: 240 1% 15%;
     --sidebar-foreground: 0 0% 90%;
     --sidebar-primary: 113 7% 56%;
@@ -93,14 +72,45 @@
     @apply border-border;
   }
 
+  /*
+   * Smooth theme color transitions:
+   * Applied broadly so card backgrounds, text, and borders all
+   * cross-fade together when toggling dark/light mode.
+   */
+  html {
+    transition:
+      background-color 0.28s ease,
+      color 0.28s ease;
+  }
+
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition:
+      background-color 0.28s ease,
+      color 0.28s ease;
   }
 
   h1, h2, h3 {
     @apply font-display;
+  }
+
+  /* Hide scrollbar cross-browser */
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer utilities {
+  .transition-theme {
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-duration: 0.28s;
+    transition-timing-function: ease;
   }
 }
