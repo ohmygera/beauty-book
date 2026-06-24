@@ -9,7 +9,16 @@ import Login from "@/pages/Login";
 import BookingPage from "@/pages/BookingPage";
 import NotFound from "@/pages/NotFound";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,   // данные считаются свежими 5 минут
+      gcTime: 10 * 60 * 1000,     // кэш хранится 10 минут
+      retry: 1,                    // только 1 повторная попытка при ошибке
+      refetchOnWindowFocus: false, // не перезапрашивать при фокусе окна
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

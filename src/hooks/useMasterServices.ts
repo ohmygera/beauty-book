@@ -39,6 +39,7 @@ export function useMasterServices() {
       return data as MasterService[];
     },
     enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000,
   });
 
   const toggleVisibility = useMutation({
@@ -56,7 +57,18 @@ export function useMasterServices() {
         .eq("master_id", user!.id);
       if (error) throw error;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+    onMutate: async ({ id, isVisible }) => {
+      await queryClient.cancelQueries({ queryKey });
+      const prev = queryClient.getQueryData<MasterService[]>(queryKey);
+      queryClient.setQueryData<MasterService[]>(queryKey, (old) =>
+        old?.map((s) => (s.id === id ? { ...s, is_visible: isVisible } : s)) ?? []
+      );
+      return { prev };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(queryKey, ctx.prev);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey }),
   });
 
   const createService = useMutation({

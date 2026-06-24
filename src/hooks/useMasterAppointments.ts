@@ -39,6 +39,7 @@ export function useMasterAppointments(date: string) {
       return data as AppointmentRow[];
     },
     enabled: !!user?.id,
+    staleTime: 2 * 60 * 1000,
   });
 
   const updateStatus = useMutation({
@@ -56,7 +57,18 @@ export function useMasterAppointments(date: string) {
         .eq("master_id", user!.id);
       if (error) throw error;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+    onMutate: async ({ id, status }) => {
+      await queryClient.cancelQueries({ queryKey });
+      const prev = queryClient.getQueryData<AppointmentRow[]>(queryKey);
+      queryClient.setQueryData<AppointmentRow[]>(queryKey, (old) =>
+        old?.map((a) => (a.id === id ? { ...a, status } : a)) ?? []
+      );
+      return { prev };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(queryKey, ctx.prev);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey }),
   });
 
   return { query, updateStatus };
