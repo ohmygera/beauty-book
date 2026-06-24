@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/config/supabase";
 import { useUIStore } from "@/store/useUIStore";
+import { useEnsureMasterRecord } from "@/hooks/useEnsureMasterRecord";
 import { CalendarTab } from "@/pages/dashboard/CalendarTab";
 import { ServicesTab } from "@/pages/dashboard/ServicesTab";
 import { SettingsTab } from "@/pages/dashboard/SettingsTab";
@@ -31,6 +32,9 @@ export function DashboardLayout() {
   const [activeTab, setActiveTab] = useState<Tab>("calendar");
   const navigate = useNavigate();
   const { currentTheme, toggleTheme } = useUIStore();
+
+  // Auto-create masters record for new users
+  useEnsureMasterRecord();
 
   const handleLogout = async () => {
     await supabase.auth.signOut();

@@ -37,8 +37,7 @@ export function useMasterSettings() {
     mutationFn: async (updates: Partial<MasterSettings>) => {
       const { error } = await supabase
         .from("masters")
-        .update(updates)
-        .eq("id", user!.id);
+        .upsert({ id: user!.id, ...updates }, { onConflict: "id" });
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
