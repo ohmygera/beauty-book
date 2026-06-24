@@ -1,20 +1,19 @@
-# AI Rules for Project
-## Architecture & Tech Stack
-* Framework: React + Vite + TypeScript (Strict Mode).
-* Styling: Tailwind CSS. Use `clsx` or `tailwind-merge` for class manipulation.
-* State: React Query for server state, Zustand for client state.
-* Backend: Supabase.
+# Tech Stack
 
-## Coding Standards
-* Functional Components: Always use React functional components with named exports.
-* Error Handling: Do NOT catch errors blindly. Allow them to bubble to the nearest Error Boundary unless a specific recovery strategy is required.
-* Responsiveness: All UI components MUST be mobile-first (`w-full` by default, `md:w-auto` for desktop).
-* JSX: Wrap JSX in parentheses in ternary operators: `cond ? (<Comp />) : null`.
+- You are building a React application.
+- Use TypeScript.
+- Use React Router. KEEP the routes in src/App.tsx
+- Always put source code in the src folder.
+- Put pages into src/pages/
+- Put components into src/components/
+- The main page (default page) is src/pages/Index.tsx
+- UPDATE the main page to include the new components. OTHERWISE, the user can NOT see any components!
+- ALWAYS try to use the shadcn/ui library.
+- Tailwind CSS: always use Tailwind CSS for styling components. Utilize Tailwind classes extensively for layout, spacing, colors, and other design aspects.
 
-## Database Safety
-* Migrations: Never alter existing columns in a way that deletes data.
-* RLS: Always enable Row Level Security on new tables. Default policy: `auth.uid() = user_id`.
+Available packages and libraries:
 
-## Vibe & Design
-* Tone: Professional, minimalist.
-* Components: Reuse components from `src/components/ui` (Shadcn/UI) whenever possible. Do not reinvent buttons or inputs.
+- The lucide-react package is installed for icons.
+- You ALREADY have ALL the shadcn/ui components and their dependencies installed. So you don't need to install them again.
+- You have ALL the necessary Radix UI components installed.
+- Use prebuilt components from the shadcn/ui library after importing them. Note that these files shouldn't be edited, so make new components if you need to change them.
