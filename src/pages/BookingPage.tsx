@@ -32,9 +32,9 @@ export default function BookingPage() {
   if (error || !master) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-3 px-6 text-center">
-        <p className="font-display text-xl text-foreground">Page not found</p>
+        <p className="font-display text-xl text-foreground">Страница не найдена</p>
         <p className="text-sm text-muted-foreground">
-          This booking link may be invalid or inactive.
+          Ссылка для записи недействительна или деактивирована.
         </p>
       </div>
     );
@@ -42,16 +42,15 @@ export default function BookingPage() {
 
   const stepTitle: Record<Step, string> = {
     services: master.display_name,
-    schedule: "Select Date & Time",
-    checkout: "Checkout",
-    success: "Booked!",
+    schedule: "Дата и время",
+    checkout: "Подтверждение",
+    success: "Записано!",
   };
 
   const stepIndex = STEP_ORDER.indexOf(step);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Header */}
       <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-border px-5 py-3 flex items-center gap-3">
         {step === "services" ? (
           <button
@@ -69,7 +68,6 @@ export default function BookingPage() {
           </span>
         </div>
 
-        {/* Step dots */}
         {step !== "success" && (
           <div className="ml-auto flex items-center gap-1.5">
             {STEP_ORDER.map((s, i) => (
@@ -88,7 +86,6 @@ export default function BookingPage() {
         )}
       </header>
 
-      {/* Step content — keyed so it re-animates on every step change */}
       <main className="max-w-2xl mx-auto px-5 py-6">
         <div key={step} className="animate-fade-in">
           {step === "services" && (
@@ -127,23 +124,22 @@ export default function BookingPage() {
 
           {step === "success" && (
             <div className="flex flex-col items-center justify-center min-h-[60vh] gap-5 text-center px-4">
-              {/* Success icon with scale-in */}
               <div className="w-20 h-20 rounded-3xl bg-sage/15 flex items-center justify-center animate-scale-in">
                 <CheckCircle2 className="w-10 h-10 text-sage" />
               </div>
               <div className="space-y-2">
                 <h2 className="font-display text-2xl font-semibold text-foreground">
-                  You're all set!
+                  Запись оформлена!
                 </h2>
                 <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
-                  Your appointment with{" "}
+                  Ваша запись к{" "}
                   <span className="font-medium text-foreground">
                     {master.display_name}
                   </span>{" "}
-                  on{" "}
-                  <span className="font-medium text-foreground">{selectedDate}</span> at{" "}
+                  на{" "}
+                  <span className="font-medium text-foreground">{selectedDate}</span> в{" "}
                   <span className="font-medium text-foreground">{selectedTime}</span>{" "}
-                  is confirmed.
+                  подтверждена.
                 </p>
               </div>
               <button
@@ -153,10 +149,10 @@ export default function BookingPage() {
                 }}
                 className="mt-2 px-6 py-2.5 rounded-xl bg-sage hover:bg-sage-dark active:scale-95 text-white text-sm font-semibold transition-all duration-200"
               >
-                Book Another
+                Записаться ещё раз
               </button>
               <p className="text-xs text-muted-foreground">
-                Powered by <span className="text-sage font-medium">AuraBook</span>
+                Работает на <span className="text-sage font-medium">AuraBook</span>
               </p>
             </div>
           )}

@@ -49,32 +49,47 @@ export function CheckoutCard({
     }).format(amount);
 
   const formatDate = (dateStr: string) =>
-    new Date(dateStr + "T12:00:00").toLocaleDateString("en-US", {
+    new Date(dateStr + "T12:00:00").toLocaleDateString("ru-RU", {
       weekday: "long",
       month: "long",
       day: "numeric",
     });
 
-  // ── Field handlers ─────────────────────────────────────────────────────────
+  const validateRuName = (value: string): string | null => {
+    const trimmed = value.trim();
+    if (!trimmed) return "Введите имя";
+    if (trimmed.length < 2) return "Имя должно содержать минимум 2 символа";
+    return null;
+  };
+
+  const validateRuPhone = (value: string): string | null => {
+    const cleaned = value.replace(/[\s()-]/g, "");
+    if (!cleaned) return "Введите номер телефона";
+    if (!/^\+?[1-9]\d{1,14}$/.test(cleaned)) {
+      return "Введите номер в формате +79991234567";
+    }
+    return null;
+  };
+
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value.slice(0, 80);
     setFullName(val);
-    if (nameError) setNameError(validateFullName(val));
+    if (nameError) setNameError(validateRuName(val));
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const sanitized = sanitizePhone(e.target.value).slice(0, 16);
     setPhoneNumber(sanitized);
-    if (phoneError) setPhoneError(validatePhone(sanitized));
+    if (phoneError) setPhoneError(validateRuPhone(sanitized));
   };
 
-  const handleNameBlur = () => setNameError(validateFullName(fullName));
-  const handlePhoneBlur = () => setPhoneError(validatePhone(phoneNumber));
+  const handleNameBlur = () => setNameError(validateRuName(fullName));
+  const handlePhoneBlur = () => setPhoneError(validateRuPhone(phoneNumber));
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    const ne = validateFullName(fullName);
-    const pe = validatePhone(phoneNumber);
+    const ne = validateRuName(fullName);
+    const pe = validateRuPhone(phoneNumber);
     setNameError(ne);
     setPhoneError(pe);
     if (ne || pe) return;
@@ -94,7 +109,6 @@ export function CheckoutCard({
     );
   };
 
-  // Map internal error to a safe frontend message
   const isSlotTaken =
     createBooking.isError &&
     createBooking.error instanceof Error &&
@@ -102,7 +116,7 @@ export function CheckoutCard({
 
   const genericError =
     createBooking.isError && !isSlotTaken
-      ? "Something went wrong. Please try again."
+      ? "Что-то пошло не так. Попробуйте ещё раз."
       : null;
 
   const inputBase = cn(
@@ -116,19 +130,19 @@ export function CheckoutCard({
     <div className="flex flex-col gap-5 pb-32 animate-fade-in">
       <div>
         <h2 className="font-display text-xl font-semibold text-foreground">
-          Confirm reservation
+          Подтверждение записи
         </h2>
         <p className="text-sm text-muted-foreground mt-0.5">
-          Review your booking and enter your details
+          Проверьте данные и введите контакты
         </p>
       </div>
 
-      {/* Booking summary card */}
+      {/* Booking summary */}
       <div className="bg-card border border-border rounded-2xl p-4 space-y-3 transition-all duration-300">
         <div className="flex items-center gap-2 text-sm">
           <CalendarDays className="w-4 h-4 text-sage flex-shrink-0" />
-          <span className="font-medium text-foreground">{formatDate(date)}</span>
-          <span className="text-muted-foreground">at</span>
+          <span className="font-medium text-foreground capitalize">{formatDate(date)}</span>
+          <span className="text-muted-foreground">в</span>
           <span className="font-semibold text-foreground">{time}</span>
         </div>
 
@@ -147,7 +161,7 @@ export function CheckoutCard({
         <div className="border-t border-border pt-3 flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Clock className="w-3.5 h-3.5" />
-            <span>{totalDuration} min</span>
+            <span>{totalDuration} мин</span>
           </div>
           <span className="font-display font-semibold text-foreground">
             {formatPrice(totalCost)}
@@ -155,17 +169,15 @@ export function CheckoutCard({
         </div>
       </div>
 
-      {/* Slot-taken notice (generic, doesn't reveal blacklist) */}
       {isSlotTaken && (
         <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-2xl px-4 py-3 animate-fade-in">
           <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
           <p className="text-sm text-amber-700 dark:text-amber-300 leading-relaxed">
-            This slot has just been taken by another client. Please choose a different time.
+            Этот слот только что заняли. Пожалуйста, выберите другое время.
           </p>
         </div>
       )}
 
-      {/* Generic error */}
       {genericError && (
         <div className="flex items-start gap-3 bg-dusty-rose/10 border border-dusty-rose/30 rounded-2xl px-4 py-3 animate-fade-in">
           <AlertCircle className="w-4 h-4 text-dusty-rose mt-0.5 flex-shrink-0" />
@@ -173,12 +185,10 @@ export function CheckoutCard({
         </div>
       )}
 
-      {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Full name */}
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Full Name
+            Имя и фамилия
           </label>
           <input
             type="text"
@@ -187,7 +197,7 @@ export function CheckoutCard({
             value={fullName}
             onChange={handleNameChange}
             onBlur={handleNameBlur}
-            placeholder="Your name"
+            placeholder="Ваше имя"
             className={cn(
               inputBase,
               nameError ? "border-dusty-rose focus:ring-dusty-rose/40" : "border-input"
@@ -198,10 +208,9 @@ export function CheckoutCard({
           )}
         </div>
 
-        {/* Phone */}
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Phone Number
+            Номер телефона
           </label>
           <input
             type="tel"
@@ -220,12 +229,11 @@ export function CheckoutCard({
             <p className="text-xs text-dusty-rose mt-1 animate-fade-in">{phoneError}</p>
           ) : (
             <p className="text-[11px] text-muted-foreground">
-              International format — e.g. +79991234567
+              Международный формат — напр. +79991234567
             </p>
           )}
         </div>
 
-        {/* Fixed bottom CTA */}
         <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t border-border p-4">
           <div className="max-w-2xl mx-auto flex gap-3">
             <button
@@ -247,10 +255,10 @@ export function CheckoutCard({
               {createBooking.isPending ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Confirming…
+                  Оформляем…
                 </>
               ) : (
-                "Confirm Reservation"
+                "Подтвердить запись"
               )}
             </button>
           </div>

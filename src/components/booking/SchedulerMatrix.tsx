@@ -12,10 +12,10 @@ interface SchedulerMatrixProps {
   onNext: (date: string, time: string) => void;
 }
 
-const DAY_ABBR = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const DAY_ABBR = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
 const MONTH_SHORT = [
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  "янв", "фев", "мар", "апр", "май", "июн",
+  "июл", "авг", "сен", "окт", "ноя", "дек",
 ];
 
 function toDateStr(d: Date): string {
@@ -58,14 +58,12 @@ export function SchedulerMatrix({
 
   return (
     <div className="flex flex-col gap-5 pb-32">
-      {/* Header */}
       <div className="animate-fade-in">
         <h2 className="font-display text-xl font-semibold text-foreground">
-          Choose a date & time
+          Выберите дату и время
         </h2>
         <p className="text-sm text-muted-foreground mt-0.5">
-          {selectedServices.length} service{selectedServices.length > 1 ? "s" : ""} ·{" "}
-          {totalDuration} min total
+          {selectedServices.length} услуг · {totalDuration} мин итого
         </p>
       </div>
 
@@ -120,7 +118,7 @@ export function SchedulerMatrix({
 
       {/* Time slots */}
       <div className="space-y-3">
-        <h3 className="text-sm font-semibold text-foreground">Available times</h3>
+        <h3 className="text-sm font-semibold text-foreground">Доступное время</h3>
 
         {slotsLoading ? (
           <div className="flex items-center justify-center py-10">
@@ -129,8 +127,8 @@ export function SchedulerMatrix({
         ) : !slots?.length ? (
           <div className="flex flex-col items-center justify-center gap-2 py-10 text-center animate-fade-in">
             <CalendarX className="w-8 h-8 text-muted-foreground/50" />
-            <p className="text-sm font-medium text-foreground">No availability</p>
-            <p className="text-xs text-muted-foreground">Try a different date</p>
+            <p className="text-sm font-medium text-foreground">Нет доступных слотов</p>
+            <p className="text-xs text-muted-foreground">Попробуйте другую дату</p>
           </div>
         ) : (
           <div key={selectedDate} className="grid grid-cols-3 gap-2">
@@ -177,7 +175,7 @@ export function SchedulerMatrix({
                 : "bg-muted text-muted-foreground cursor-not-allowed"
             )}
           >
-            {selectedTime ? `Continue with ${selectedTime}` : "Select a time"}
+            {selectedTime ? `Продолжить · ${selectedTime}` : "Выберите время"}
           </button>
         </div>
       </div>

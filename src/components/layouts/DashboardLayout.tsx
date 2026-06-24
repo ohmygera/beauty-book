@@ -21,10 +21,10 @@ import { cn } from "@/lib/utils";
 type Tab = "calendar" | "clients" | "services" | "settings";
 
 const NAV_ITEMS: { id: Tab; label: string; Icon: React.ElementType }[] = [
-  { id: "calendar", label: "Calendar", Icon: CalendarDays },
-  { id: "clients", label: "Clients", Icon: Users },
-  { id: "services", label: "Services", Icon: Scissors },
-  { id: "settings", label: "Settings", Icon: Settings },
+  { id: "calendar", label: "Записи", Icon: CalendarDays },
+  { id: "clients", label: "Клиенты", Icon: Users },
+  { id: "services", label: "Услуги", Icon: Scissors },
+  { id: "settings", label: "Настройки", Icon: Settings },
 ];
 
 export function DashboardLayout() {
@@ -39,7 +39,6 @@ export function DashboardLayout() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* ── Top utility bar ── */}
       <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-border px-5 py-3">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -48,15 +47,14 @@ export function DashboardLayout() {
               AuraBook
             </span>
             <span className="hidden sm:inline-block text-xs text-muted-foreground ml-1 font-sans">
-              Dashboard
+              Панель управления
             </span>
           </div>
           <div className="flex items-center gap-2">
-            {/* Theme toggle */}
             <button
               onClick={toggleTheme}
               className="w-8 h-8 rounded-full bg-card border border-border flex items-center justify-center hover:bg-accent transition-colors"
-              aria-label="Toggle theme"
+              aria-label="Сменить тему"
             >
               {currentTheme === "light" ? (
                 <Moon className="w-3.5 h-3.5 text-foreground" />
@@ -64,11 +62,10 @@ export function DashboardLayout() {
                 <Sun className="w-3.5 h-3.5 text-foreground" />
               )}
             </button>
-            {/* Logout */}
             <button
               onClick={handleLogout}
               className="w-8 h-8 rounded-full bg-card border border-border flex items-center justify-center hover:bg-dusty-rose/10 hover:border-dusty-rose/40 transition-colors"
-              aria-label="Sign out"
+              aria-label="Выйти"
             >
               <LogOut className="w-3.5 h-3.5 text-muted-foreground hover:text-dusty-rose transition-colors" />
             </button>
@@ -76,7 +73,6 @@ export function DashboardLayout() {
         </div>
       </header>
 
-      {/* ── Tab content ── */}
       <main className="flex-1 overflow-y-auto pb-28">
         <div className="max-w-2xl mx-auto px-5 py-6">
           <div key={activeTab} className="animate-fade-in">
@@ -88,7 +84,6 @@ export function DashboardLayout() {
         </div>
       </main>
 
-      {/* ── Bottom navigation ── */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-t border-border">
         <div className="max-w-2xl mx-auto flex items-stretch">
           {NAV_ITEMS.map(({ id, label, Icon }) => {

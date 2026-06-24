@@ -35,8 +35,8 @@ export function ServiceCanvas({ master, onNext }: ServiceCanvasProps) {
 
   const formatDuration = (mins: number) =>
     mins >= 60
-      ? `${Math.floor(mins / 60)}h${mins % 60 > 0 ? ` ${mins % 60}m` : ""}`
-      : `${mins}m`;
+      ? `${Math.floor(mins / 60)} ч${mins % 60 > 0 ? ` ${mins % 60} мин` : ""}`
+      : `${mins} мин`;
 
   if (isLoading) {
     return (
@@ -49,9 +49,9 @@ export function ServiceCanvas({ master, onNext }: ServiceCanvasProps) {
   if (!services?.length) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center gap-2 px-6 py-20 text-center">
-        <p className="font-display text-lg text-foreground">No services available</p>
+        <p className="font-display text-lg text-foreground">Услуг нет</p>
         <p className="text-sm text-muted-foreground">
-          {master.display_name} hasn't listed any services yet.
+          {master.display_name} ещё не добавил услуги.
         </p>
       </div>
     );
@@ -62,10 +62,10 @@ export function ServiceCanvas({ master, onNext }: ServiceCanvasProps) {
       <div className="space-y-3 pb-36">
         <div className="pt-2 pb-1">
           <h2 className="font-display text-xl font-semibold text-foreground">
-            Choose services
+            Выберите услуги
           </h2>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Select one or more services to book
+            Можно выбрать несколько
           </p>
         </div>
 
@@ -86,7 +86,6 @@ export function ServiceCanvas({ master, onNext }: ServiceCanvasProps) {
                   : "border-border hover:border-sage/40 hover:shadow-sm"
               )}
             >
-              {/* Checkbox */}
               <div className="mt-0.5 flex-shrink-0 transition-transform duration-150">
                 {isSelected ? (
                   <CheckCircle2 className="w-5 h-5 text-sage scale-110" />
@@ -117,14 +116,12 @@ export function ServiceCanvas({ master, onNext }: ServiceCanvasProps) {
         })}
       </div>
 
-      {/* Sticky bottom bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t border-border p-4 transition-all duration-300">
         <div className="max-w-2xl mx-auto space-y-3">
           {selected.length > 0 && (
             <div className="flex items-center justify-between text-sm animate-fade-in">
               <span className="text-muted-foreground">
-                {selected.length} service{selected.length > 1 ? "s" : ""} ·{" "}
-                {formatDuration(totalDuration)}
+                {selected.length} услуг · {formatDuration(totalDuration)}
               </span>
               <span className="font-semibold text-foreground">
                 {formatPrice(totalPrice)}
@@ -151,7 +148,7 @@ export function ServiceCanvas({ master, onNext }: ServiceCanvasProps) {
                 : "bg-muted text-muted-foreground cursor-not-allowed"
             )}
           >
-            Choose Time
+            Выбрать время
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>

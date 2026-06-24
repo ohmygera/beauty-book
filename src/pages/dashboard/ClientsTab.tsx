@@ -29,8 +29,8 @@ export function ClientsTab() {
   const blacklistedCount = allClients.filter((c) => c.is_blacklisted).length;
 
   const formatDate = (iso: string) =>
-    new Date(iso).toLocaleDateString("en-US", {
-      month: "short",
+    new Date(iso).toLocaleDateString("ru-RU", {
+      month: "long",
       day: "numeric",
       year: "numeric",
     });
@@ -45,45 +45,41 @@ export function ClientsTab() {
 
   return (
     <div className="space-y-5">
-      {/* Header */}
       <div>
         <h2 className="font-display text-lg font-semibold text-foreground">
-          Clients
+          Клиенты
         </h2>
         <p className="text-xs text-muted-foreground mt-0.5">
-          {allClients.length} total ·{" "}
+          {allClients.length} всего ·{" "}
           {blacklistedCount > 0 ? (
             <span className="text-dusty-rose font-medium">
-              {blacklistedCount} blocked
+              {blacklistedCount} заблокировано
             </span>
           ) : (
-            "none blocked"
+            "никто не заблокирован"
           )}
         </p>
       </div>
 
-      {/* Search */}
       {allClients.length > 0 && (
         <div className="relative">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name or phone…"
+            placeholder="Поиск по имени или телефону…"
             className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all"
           />
         </div>
       )}
 
-      {/* Error */}
       {query.isError && (
         <div className="flex items-start gap-3 bg-dusty-rose/10 border border-dusty-rose/30 rounded-2xl px-4 py-3">
           <AlertCircle className="w-4 h-4 text-dusty-rose mt-0.5 flex-shrink-0" />
-          <p className="text-sm text-dusty-rose">Failed to load clients.</p>
+          <p className="text-sm text-dusty-rose">Не удалось загрузить клиентов.</p>
         </div>
       )}
 
-      {/* Empty state */}
       {clients.length === 0 && !query.isLoading ? (
         <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
           <div className="w-16 h-16 rounded-3xl bg-muted flex items-center justify-center">
@@ -91,12 +87,12 @@ export function ClientsTab() {
           </div>
           <div>
             <p className="text-sm font-semibold text-foreground">
-              {search ? "No clients match" : "No clients yet"}
+              {search ? "Клиентов не найдено" : "Клиентов пока нет"}
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">
               {search
-                ? "Try different keywords"
-                : "Clients appear here after their first booking"}
+                ? "Попробуйте другой запрос"
+                : "Клиенты появятся здесь после первой записи"}
             </p>
           </div>
         </div>
@@ -114,7 +110,6 @@ export function ClientsTab() {
                   : "border-border hover:shadow-sm"
               )}
             >
-              {/* Initial avatar */}
               <div
                 className={cn(
                   "w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 text-sm font-bold",
@@ -126,7 +121,6 @@ export function ClientsTab() {
                 {client.full_name.charAt(0).toUpperCase()}
               </div>
 
-              {/* Info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <p
@@ -141,7 +135,7 @@ export function ClientsTab() {
                   </p>
                   {client.is_blacklisted && (
                     <span className="flex-shrink-0 text-[10px] font-bold text-dusty-rose bg-dusty-rose/10 px-1.5 py-0.5 rounded-full leading-none">
-                      Blocked
+                      Заблокирован
                     </span>
                   )}
                 </div>
@@ -152,11 +146,10 @@ export function ClientsTab() {
                   </p>
                 </div>
                 <p className="text-[11px] text-muted-foreground/70 mt-0.5">
-                  Since {formatDate(client.created_at)}
+                  С {formatDate(client.created_at)}
                 </p>
               </div>
 
-              {/* Blacklist toggle */}
               <button
                 onClick={() =>
                   toggleBlacklist.mutate(
@@ -165,10 +158,10 @@ export function ClientsTab() {
                       onSuccess: () =>
                         showSuccess(
                           client.is_blacklisted
-                            ? `${client.full_name} unblocked`
-                            : `${client.full_name} blocked`
+                            ? `${client.full_name} разблокирован`
+                            : `${client.full_name} заблокирован`
                         ),
-                      onError: () => showError("Failed to update client"),
+                      onError: () => showError("Не удалось обновить клиента"),
                     }
                   )
                 }
@@ -179,9 +172,7 @@ export function ClientsTab() {
                     ? "bg-sage/10 border-sage/30 hover:bg-sage/20 text-sage"
                     : "bg-dusty-rose/8 border-dusty-rose/25 hover:bg-dusty-rose/15 text-dusty-rose"
                 )}
-                title={
-                  client.is_blacklisted ? "Unblock client" : "Block client"
-                }
+                title={client.is_blacklisted ? "Разблокировать" : "Заблокировать"}
               >
                 {client.is_blacklisted ? (
                   <ShieldOff className="w-4 h-4" />

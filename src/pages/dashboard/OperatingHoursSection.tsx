@@ -1,18 +1,17 @@
 import { useState, useEffect } from "react";
 import { Clock, Loader2 } from "lucide-react";
 import { useMasterOperatingHours } from "@/hooks/useMasterOperatingHours";
-import { useAuth } from "@/hooks/useAuth";
 import { showSuccess, showError } from "@/utils/toast";
 import { cn } from "@/lib/utils";
 
 const DAYS = [
-  { dow: 1, short: "Mon", label: "Monday" },
-  { dow: 2, short: "Tue", label: "Tuesday" },
-  { dow: 3, short: "Wed", label: "Wednesday" },
-  { dow: 4, short: "Thu", label: "Thursday" },
-  { dow: 5, short: "Fri", label: "Friday" },
-  { dow: 6, short: "Sat", label: "Saturday" },
-  { dow: 0, short: "Sun", label: "Sunday" },
+  { dow: 1, short: "Пн", label: "Понедельник" },
+  { dow: 2, short: "Вт", label: "Вторник" },
+  { dow: 3, short: "Ср", label: "Среда" },
+  { dow: 4, short: "Чт", label: "Четверг" },
+  { dow: 5, short: "Пт", label: "Пятница" },
+  { dow: 6, short: "Сб", label: "Суббота" },
+  { dow: 0, short: "Вс", label: "Воскресенье" },
 ];
 
 interface DraftHour {
@@ -30,7 +29,6 @@ const DEFAULT_DRAFT = (dow: number): DraftHour => ({
 });
 
 export function OperatingHoursSection() {
-  const { user } = useAuth();
   const { query, saveHours } = useMasterOperatingHours();
   const [drafts, setDrafts] = useState<DraftHour[]>(
     DAYS.map((d) => DEFAULT_DRAFT(d.dow))
@@ -59,8 +57,8 @@ export function OperatingHoursSection() {
 
   const handleSave = () => {
     saveHours.mutate(drafts, {
-      onSuccess: () => showSuccess("Operating hours saved"),
-      onError: () => showError("Failed to save operating hours"),
+      onSuccess: () => showSuccess("Расписание сохранено"),
+      onError: () => showError("Не удалось сохранить расписание"),
     });
   };
 
@@ -75,7 +73,7 @@ export function OperatingHoursSection() {
   return (
     <section className="bg-card border border-border rounded-2xl p-4 space-y-4 transition-all duration-200">
       <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-        Operating Hours
+        Рабочие часы
       </p>
 
       <div className="space-y-1.5">
@@ -91,7 +89,6 @@ export function OperatingHoursSection() {
                   : "border-transparent"
               )}
             >
-              {/* Toggle + day label */}
               <button
                 type="button"
                 onClick={() =>
@@ -126,7 +123,6 @@ export function OperatingHoursSection() {
                 </span>
               </button>
 
-              {/* Time inputs */}
               {draft.is_operational ? (
                 <div className="flex items-center gap-2 flex-1 min-w-0">
                   <input
@@ -137,9 +133,7 @@ export function OperatingHoursSection() {
                     }
                     className="flex-1 min-w-0 px-2.5 py-1.5 rounded-lg text-sm bg-background border border-input text-foreground focus:outline-none focus:ring-1 focus:ring-ring transition-all"
                   />
-                  <span className="text-xs text-muted-foreground flex-shrink-0">
-                    –
-                  </span>
+                  <span className="text-xs text-muted-foreground flex-shrink-0">–</span>
                   <input
                     type="time"
                     value={draft.end_time}
@@ -151,7 +145,7 @@ export function OperatingHoursSection() {
                 </div>
               ) : (
                 <span className="text-xs text-muted-foreground italic">
-                  Day off
+                  Выходной
                 </span>
               )}
             </div>
@@ -169,7 +163,7 @@ export function OperatingHoursSection() {
         ) : (
           <>
             <Clock className="w-4 h-4" />
-            Save Hours
+            Сохранить расписание
           </>
         )}
       </button>

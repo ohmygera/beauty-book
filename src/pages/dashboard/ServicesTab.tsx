@@ -28,10 +28,10 @@ function AddServiceSheet({ onClose }: { onClose: () => void }) {
     e.preventDefault();
     createService.mutate(form, {
       onSuccess: () => {
-        showSuccess("Service created");
+        showSuccess("Услуга создана");
         onClose();
       },
-      onError: () => showError("Failed to create service"),
+      onError: () => showError("Не удалось создать услугу"),
     });
   };
 
@@ -42,20 +42,20 @@ function AddServiceSheet({ onClose }: { onClose: () => void }) {
     <form onSubmit={handleSubmit} className="space-y-4 pt-2">
       <div className="space-y-1.5">
         <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-          Name *
+          Название *
         </label>
         <input
           required
           maxLength={80}
           value={form.name}
           onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-          placeholder="e.g. Signature Facial"
+          placeholder="напр. Авторский уход за лицом"
           className={inputClass}
         />
       </div>
       <div className="space-y-1.5">
         <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-          Description
+          Описание
         </label>
         <textarea
           maxLength={300}
@@ -63,7 +63,7 @@ function AddServiceSheet({ onClose }: { onClose: () => void }) {
           onChange={(e) =>
             setForm((p) => ({ ...p, description: e.target.value }))
           }
-          placeholder="Short description for clients"
+          placeholder="Краткое описание для клиентов"
           rows={2}
           className={cn(inputClass, "resize-none")}
         />
@@ -74,7 +74,7 @@ function AddServiceSheet({ onClose }: { onClose: () => void }) {
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Price (₽)
+            Цена (₽)
           </label>
           <input
             type="number"
@@ -88,13 +88,13 @@ function AddServiceSheet({ onClose }: { onClose: () => void }) {
                 price_amount: parseFloat(e.target.value) || 0,
               }))
             }
-            placeholder="9500"
+            placeholder="2500"
             className={inputClass}
           />
         </div>
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Duration (min)
+            Длительность (мин)
           </label>
           <input
             type="number"
@@ -115,7 +115,7 @@ function AddServiceSheet({ onClose }: { onClose: () => void }) {
       </div>
 
       <div className="flex items-center justify-between py-1">
-        <span className="text-sm text-foreground">Visible to clients</span>
+        <span className="text-sm text-foreground">Видно клиентам</span>
         <button
           type="button"
           onClick={() => setForm((p) => ({ ...p, is_visible: !p.is_visible }))}
@@ -141,7 +141,7 @@ function AddServiceSheet({ onClose }: { onClose: () => void }) {
         {createService.isPending ? (
           <Loader2 className="w-4 h-4 animate-spin" />
         ) : (
-          "Create Service"
+          "Создать услугу"
         )}
       </button>
     </form>
@@ -170,24 +170,23 @@ export function ServicesTab() {
 
   return (
     <div className="space-y-5">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-display text-lg font-semibold text-foreground">Services</h2>
+          <h2 className="font-display text-lg font-semibold text-foreground">Услуги</h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {services.filter((s) => s.is_visible).length} visible · {services.length} total
+            {services.filter((s) => s.is_visible).length} активных · {services.length} всего
           </p>
         </div>
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetTrigger asChild>
             <button className="flex items-center gap-1.5 bg-sage hover:bg-sage-dark active:scale-95 text-white text-sm font-semibold px-3.5 py-2 rounded-xl transition-all duration-200">
               <Plus className="w-4 h-4" />
-              Add
+              Добавить
             </button>
           </SheetTrigger>
           <SheetContent side="bottom" className="rounded-t-3xl">
             <SheetHeader>
-              <SheetTitle className="font-display text-lg">New Service</SheetTitle>
+              <SheetTitle className="font-display text-lg">Новая услуга</SheetTitle>
             </SheetHeader>
             <div className="px-1 pb-4">
               <AddServiceSheet onClose={() => setSheetOpen(false)} />
@@ -199,14 +198,14 @@ export function ServicesTab() {
       {query.isError && (
         <div className="flex items-start gap-3 bg-dusty-rose/10 border border-dusty-rose/30 rounded-2xl px-4 py-3">
           <AlertCircle className="w-4 h-4 text-dusty-rose mt-0.5" />
-          <p className="text-sm text-dusty-rose">Failed to load services.</p>
+          <p className="text-sm text-dusty-rose">Не удалось загрузить услуги.</p>
         </div>
       )}
 
       {services.length === 0 && !query.isLoading ? (
         <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
-          <p className="text-sm font-semibold text-foreground">No services yet</p>
-          <p className="text-xs text-muted-foreground">Tap "Add" to create your first service</p>
+          <p className="text-sm font-semibold text-foreground">Услуг пока нет</p>
+          <p className="text-xs text-muted-foreground">Нажмите «Добавить», чтобы создать первую услугу</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -238,14 +237,14 @@ export function ServicesTab() {
                         { id: svc.id, isVisible: !svc.is_visible },
                         {
                           onSuccess: () =>
-                            showSuccess(svc.is_visible ? "Service hidden" : "Service visible"),
-                          onError: () => showError("Failed to update"),
+                            showSuccess(svc.is_visible ? "Услуга скрыта" : "Услуга активна"),
+                          onError: () => showError("Не удалось обновить"),
                         }
                       )
                     }
                     disabled={toggleVisibility.isPending}
                     className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-accent border border-border transition-all duration-150 flex-shrink-0 active:scale-90"
-                    title={svc.is_visible ? "Hide service" : "Show service"}
+                    title={svc.is_visible ? "Скрыть" : "Показать"}
                   >
                     {svc.is_visible ? (
                       <Eye className="w-3.5 h-3.5 text-sage" />
@@ -257,14 +256,14 @@ export function ServicesTab() {
                 <div className="flex items-center gap-3">
                   <span className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Clock className="w-3 h-3" />
-                    {svc.duration_minutes}m
+                    {svc.duration_minutes} мин
                   </span>
                   <span className="text-xs font-semibold text-foreground">
                     {formatPrice(svc.price_amount)}
                   </span>
                   {!svc.is_visible && (
                     <span className="text-[10px] font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                      Hidden
+                      Скрыта
                     </span>
                   )}
                 </div>
