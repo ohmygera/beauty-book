@@ -1,98 +1,261 @@
-import { User, Clock, Bell, Link, ChevronRight, Shield } from "lucide-react";
-
-interface SettingsRowProps {
-  icon: React.ReactNode;
-  label: string;
-  value?: string;
-  onClick?: () => void;
-}
-
-function SettingsRow({ icon, label, value, onClick }: SettingsRowProps) {
-  return (
-    <button
-      onClick={onClick}
-      className="w-full flex items-center gap-3 py-3 px-1 hover:bg-accent rounded-xl transition-colors group"
-    >
-      <div className="w-8 h-8 rounded-xl bg-sage/10 flex items-center justify-center flex-shrink-0">
-        {icon}
-      </div>
-      <div className="flex-1 text-left">
-        <p className="text-sm font-medium text-foreground">{label}</p>
-        {value && <p className="text-xs text-muted-foreground mt-0.5">{value}</p>}
-      </div>
-      <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-    </button>
-  );
-}
-
-function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="bg-card border border-border rounded-2xl p-4 space-y-1">
-      <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2 px-1">
-        {title}
-      </p>
-      {children}
-    </div>
-  );
-}
+import { useState, useEffect } from "react";
+import {
+  User, Clock, Bell, Link, Copy, Check, Loader2, Shield,
+} from "lucide-react";
+import { useMasterSettings } from "@/hooks/useMasterSettings";
+import { showSuccess, showError } from "@/utils/toast";
+import { cn } from "@/lib/utils";
 
 export function SettingsTab() {
+  const { query, updateSettings } = useMasterSettings();
+  const master = query.data;
+
+  const [copied, setCopied] = useState(false);
+  const [profile, setProfile] = useState({
+    display_name: "",
+    bio: "",
+    phone_number: "",
+  });
+  const [scheduling, setScheduling] = useState({
+    buffer_time_minutes: 15,
+    advance_notice_hours: 2,
+  });
+
+  // Sync state when data loads
+  useEffect(() => {
+    if (!master) return;
+    setProfile({
+      display_name: master.display_name ?? "",
+      bio: master.bio ?? "",
+      phone_number: master.phone_number ?? "",
+    });
+    setScheduling({
+      buffer_time_minutes: master.buffer_time_minutes,
+      advance_notice_hours: master.advance_notice_hours,
+    });
+  }, [master]);
+
+  const bookingUrl = master
+    ? `${window.location.origin}/b/${master.username}`
+    : "";
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(bookingUrl);
+    setCopied(true);
+    showSuccess("Booking link copied!");
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleSaveProfile = () => {
+    updateSettings.mutate(profile, {
+      onSuccess: () => showSuccess("Profile saved"),
+      onError: () => showError("Failed to save profile"),
+    });
+  };
+
+  const handleSaveScheduling = () => {
+    updateSettings.mutate(scheduling, {
+      onSuccess: () => showSuccess("Scheduling settings saved"),
+      onError: () => showError("Failed to save settings"),
+    });
+  };
+
+  const inputClass =
+    "w-full px-3.5 py-2.5 rounded-xl text-sm bg-background border border-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-colors";
+
+  if (query.isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-5 h-5 text-sage animate-spin" />
+      </div>
+    );
+  }
+
+  if (!master) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-2 text-center">
+        <Shield className="w-8 h-8 text-muted-foreground/40" />
+        <p className="text-sm text-muted-foreground">
+          Profile not set up yet. Complete your onboarding first.
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-5">
-      {/* Profile summary */}
+    <div className="space-y-6">
+      {/* Profile card */}
       <div className="bg-card border border-border rounded-2xl p-5 flex items-center gap-4">
         <div className="w-14 h-14 rounded-2xl bg-sage/20 flex items-center justify-center flex-shrink-0">
           <User className="w-6 h-6 text-sage" />
         </div>
         <div className="flex-1">
-          <p className="font-semibold text-foreground">Master Name</p>
-          <p className="text-sm text-muted-foreground">master@example.com</p>
+          <p className="font-semibold text-foreground">{master.display_name}</p>
+          <p className="text-sm text-muted-foreground">@{master.username}</p>
           <span className="inline-flex items-center gap-1 mt-1.5 text-[10px] font-semibold text-sage bg-sage/10 px-2 py-0.5 rounded-full">
             <Shield className="w-2.5 h-2.5" /> Active
           </span>
         </div>
-        <button className="text-xs font-medium text-sage hover:underline">Edit</button>
       </div>
 
-      {/* Settings sections */}
-      <SectionCard title="Profile">
-        <SettingsRow
-          icon={<User className="w-4 h-4 text-sage" />}
-          label="Display name & bio"
-          value="Update how clients see you"
-        />
-        <SettingsRow
-          icon={<Link className="w-4 h-4 text-sage" />}
-          label="Booking page URL"
-          value="aurabook.app/b/mastername"
-        />
-      </SectionCard>
+      {/* Booking URL */}
+      <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
+        <div className="flex items-center gap-2">
+          <Link className="w-4 h-4 text-sage" />
+          <p className="text-sm font-semibold text-foreground">Your Booking Link</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="flex-1 px-3 py-2 rounded-xl bg-background border border-input">
+            <p className="text-xs text-muted-foreground truncate">{bookingUrl}</p>
+          </div>
+          <button
+            onClick={handleCopy}
+            className={cn(
+              "flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-colors border",
+              copied
+                ? "bg-sage/15 border-sage/40 text-sage"
+                : "bg-card border-border text-muted-foreground hover:bg-accent"
+            )}
+            title="Copy link"
+          >
+            {copied ? (
+              <Check className="w-4 h-4" />
+            ) : (
+              <Copy className="w-4 h-4" />
+            )}
+          </button>
+        </div>
+      </div>
 
-      <SectionCard title="Scheduling">
-        <SettingsRow
-          icon={<Clock className="w-4 h-4 text-sage" />}
-          label="Working hours"
-          value="Mon–Sat · 09:00 – 19:00"
-        />
-        <SettingsRow
-          icon={<Clock className="w-4 h-4 text-sage" />}
-          label="Buffer time"
-          value="15 minutes between appointments"
-        />
-        <SettingsRow
-          icon={<Bell className="w-4 h-4 text-sage" />}
-          label="Advance notice"
-          value="2 hours minimum"
-        />
-      </SectionCard>
+      {/* Profile settings */}
+      <section className="bg-card border border-border rounded-2xl p-4 space-y-4">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+          Profile
+        </p>
 
-      <SectionCard title="Notifications">
-        <SettingsRow
-          icon={<Bell className="w-4 h-4 text-sage" />}
-          label="New booking alerts"
-          value="Email + push"
-        />
-      </SectionCard>
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Display Name
+          </label>
+          <input
+            value={profile.display_name}
+            onChange={(e) =>
+              setProfile((p) => ({ ...p, display_name: e.target.value }))
+            }
+            placeholder="Your display name"
+            className={inputClass}
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Bio
+          </label>
+          <textarea
+            value={profile.bio}
+            onChange={(e) =>
+              setProfile((p) => ({ ...p, bio: e.target.value }))
+            }
+            placeholder="Short intro for your clients"
+            rows={3}
+            className={cn(inputClass, "resize-none")}
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Phone Number
+          </label>
+          <input
+            type="tel"
+            value={profile.phone_number}
+            onChange={(e) =>
+              setProfile((p) => ({ ...p, phone_number: e.target.value }))
+            }
+            placeholder="+7 999 000 00 00"
+            className={inputClass}
+          />
+        </div>
+
+        <button
+          onClick={handleSaveProfile}
+          disabled={updateSettings.isPending}
+          className="w-full py-2.5 rounded-xl bg-sage hover:bg-sage-dark text-white text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
+        >
+          {updateSettings.isPending ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            "Save Profile"
+          )}
+        </button>
+      </section>
+
+      {/* Scheduling settings */}
+      <section className="bg-card border border-border rounded-2xl p-4 space-y-4">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+          Scheduling
+        </p>
+
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            <span className="flex items-center gap-1.5">
+              <Clock className="w-3 h-3" /> Buffer Time (minutes)
+            </span>
+          </label>
+          <input
+            type="number"
+            min={0}
+            max={120}
+            value={scheduling.buffer_time_minutes}
+            onChange={(e) =>
+              setScheduling((p) => ({
+                ...p,
+                buffer_time_minutes: parseInt(e.target.value) || 0,
+              }))
+            }
+            className={inputClass}
+          />
+          <p className="text-[11px] text-muted-foreground">
+            Gap between appointments (currently {scheduling.buffer_time_minutes}m)
+          </p>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            <span className="flex items-center gap-1.5">
+              <Bell className="w-3 h-3" /> Advance Notice (hours)
+            </span>
+          </label>
+          <input
+            type="number"
+            min={0}
+            max={72}
+            value={scheduling.advance_notice_hours}
+            onChange={(e) =>
+              setScheduling((p) => ({
+                ...p,
+                advance_notice_hours: parseInt(e.target.value) || 0,
+              }))
+            }
+            className={inputClass}
+          />
+          <p className="text-[11px] text-muted-foreground">
+            Minimum lead time before booking (currently {scheduling.advance_notice_hours}h)
+          </p>
+        </div>
+
+        <button
+          onClick={handleSaveScheduling}
+          disabled={updateSettings.isPending}
+          className="w-full py-2.5 rounded-xl bg-sage hover:bg-sage-dark text-white text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
+        >
+          {updateSettings.isPending ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            "Save Scheduling"
+          )}
+        </button>
+      </section>
     </div>
   );
 }
