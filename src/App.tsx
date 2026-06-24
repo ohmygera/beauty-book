@@ -32,8 +32,8 @@ const App = () => (
             }
           />
 
-          {/* Redirect root to login */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          {/* Redirect root to dashboard */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
           {/* 404 */}
           <Route path="*" element={<NotFound />} />
